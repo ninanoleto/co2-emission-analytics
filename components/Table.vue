@@ -90,7 +90,6 @@ tr:nth-child(even) {
 
 #double {
   border: none;
-  padding: 0;
 }
 
 #separate {

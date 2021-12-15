@@ -4,6 +4,8 @@ import { Client } from 'pg';
 const app = express();
 
 app.get('/emissions', async (req, res) => {
+  const { start, end } = req.query;
+
   const client = new Client({
     host: process.env.HOST ?? 'localhost',
     user: 'test',
@@ -22,8 +24,10 @@ app.get('/emissions', async (req, res) => {
       FROM co2_emission_analytics.shipment_co2_emissions em
       INNER JOIN  co2_emission_analytics.shipments sp
       ON em.shipment_id = sp.id
+      WHERE sp.dropoff_time BETWEEN $1 AND $2
       ORDER BY sp.dropoff_time
-    `
+    `,
+    [start, end]
   );
 
   await client.end();
