@@ -1,11 +1,13 @@
 /**
  * Reduces duplicate data from database to single object with unique id
  * that contains all the types of calculations of CO2
+ * @param {Date} startDate
+ * @param {Date} endDate
  */
-const getModeledData = async () => {
-  const dbData = await fetch('http://localhost:3000/api/emissions').then(
-    (res) => res.json()
-  );
+export const getModeledData = async (startDate, endDate) => {
+  const dbData = await fetch(
+    `http://localhost:3000/api/emissions?start=${startDate.toUTCString()}&end=${endDate.toUTCString()}`
+  ).then((res) => res.json());
 
   const allModeledData = {};
 
@@ -24,40 +26,10 @@ const getModeledData = async () => {
       },
     };
 
-    // assign/reassing the new modeledData to the array of allMoledData
+    // assign/reassing the new modeledData to the object of allMoledData
     allModeledData[data.id] = modeledData;
   }
 
+  console.log(allModeledData);
   return allModeledData;
-};
-
-const getFilteredData = async (date) => {
-  const allModeledData = await getModeledData();
-
-  const filteredData = [];
-
-  for (const data in allModeledData) {
-    const dateDropoffTime = allModeledData[data].dropoffTime;
-    if (date.getDate() === dateDropoffTime.getDate()) {
-      filteredData.push(allModeledData[data]);
-    }
-  }
-
-  return filteredData;
-};
-
-export const getSortedDataAsc = async (date) => {
-  const sortedData = await getFilteredData(date);
-
-  return sortedData.sort((a, b) =>
-    a.dropoffTime.getTime() > b.dropoffTime.getTime() ? 1 : -1
-  );
-};
-
-export const getSortedDataDesc = async (date) => {
-  const sortedData = await getFilteredData(date);
-
-  return sortedData.sort((a, b) =>
-    a.dropoffTime.getTime() > b.dropoffTime.getTime() ? -1 : 1
-  );
 };
