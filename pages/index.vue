@@ -9,12 +9,22 @@
       </client-only>
     </div>
     <client-only>
-      <Table
-        :shipments="shipments"
-        :noShipments="noShipments"
-        :search="search"
-        @sort-data="sortTable"
-      />
+      <mq-layout mq="mmd+">
+        <Table
+          :shipments="shipments"
+          :noShipments="noShipments"
+          :search="search"
+          @sort-data="sortTable"
+        />
+      </mq-layout>
+      <mq-layout mq="md">
+        <TableMobile
+          :shipments="shipments"
+          :noShipments="noShipments"
+          :search="search"
+          @sort-data="sortTable"
+        />
+      </mq-layout>
     </client-only>
   </div>
 </template>
@@ -22,12 +32,14 @@
 <script>
 import DatePicker from '../components/DatePicker.vue';
 import Table from '../components/Table.vue';
+import TableMobile from '../components/TableMobile.vue';
 import { getModeledData } from '../services/methods';
 
 export default {
   components: {
     DatePicker,
     Table,
+    TableMobile,
   },
   data() {
     return {
@@ -38,7 +50,6 @@ export default {
     };
   },
   methods: {
-    // Adjust Sort
     sortTable() {
       console.log('before sort: ' + this.ascOrder);
       if (!this.ascOrder) {
@@ -86,10 +97,6 @@ export default {
       ],
     };
   },
-
-  created() {
-    console.log(this.ascOrder);
-  },
 };
 </script>
 
@@ -128,5 +135,59 @@ header::after {
   color: rgb(47, 58, 51);
   font-weight: 300;
   margin: 0.5rem;
+}
+
+@media only screen and (max-width: 1024px) {
+  .container {
+    max-width: 800px;
+    margin: 1.5rem auto;
+    padding: 0.1rem 1.5rem 2rem;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+}
+
+@media only screen and (max-width: 880px) {
+  .container {
+    max-width: 700px;
+    margin: 1.5rem auto;
+    padding: 0.1rem 1.5rem 2rem;
+  }
+
+  .title {
+    font-size: 1.7rem;
+    margin: 0;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .container {
+    max-width: 450px;
+  }
+
+  .header-container {
+    flex-direction: column;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+}
+
+@media only screen and (max-width: 480px) {
+  .container {
+    max-width: 380px;
+  }
+
+  .title {
+    font-size: 1.3rem;
+  }
+}
+@media only screen and (max-width: 410px) {
+  .container {
+    max-width: 300px;
+  }
 }
 </style>
