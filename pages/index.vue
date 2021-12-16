@@ -8,6 +8,25 @@
         <DatePicker v-on:set-shipments="setShipments" />
       </client-only>
     </div>
+    <div :class="[page === 1 && 'change-flex', 'btns-wrapper']">
+      <button
+        class="btn-prev"
+        :hidden="(page === 1 && 'null') || shipments.length === 0"
+        @click="prevPage"
+      >
+        &#8592; Prev
+      </button>
+      <button
+        class="btn-next"
+        :hidden="
+          ((hideNextButton || lastPage === 1) && 'null') ||
+          shipments.length === 0
+        "
+        @click="nextPage"
+      >
+        Next &#8594;
+      </button>
+    </div>
     <client-only>
       <mq-layout mq="mmd+">
         <Table
@@ -26,6 +45,25 @@
         />
       </mq-layout>
     </client-only>
+    <div :class="[page === 1 && 'change-flex', 'btns-wrapper']">
+      <button
+        class="btn-prev"
+        :hidden="(page === 1 && 'null') || shipments.length === 0"
+        @click="prevPage"
+      >
+        &#8592; Prev
+      </button>
+      <button
+        class="btn-next"
+        :hidden="
+          ((hideNextButton || lastPage === 1) && 'null') ||
+          shipments.length === 0
+        "
+        @click="nextPage"
+      >
+        Next &#8594;
+      </button>
+    </div>
   </div>
 </template>
 
@@ -33,7 +71,7 @@
 import DatePicker from '../components/DatePicker.vue';
 import Table from '../components/Table.vue';
 import TableMobile from '../components/TableMobile.vue';
-import { getModeledData } from '../services/methods';
+import { getModeledData } from '../services/modelData';
 
 export default {
   components: {
@@ -43,45 +81,106 @@ export default {
   },
   data() {
     return {
+      allShipments: {},
       shipments: [],
       ascOrder: true,
       noShipments: false,
       search: false,
+      page: Number,
+      lastPage: Number,
+      hideNextButton: false,
     };
   },
   methods: {
+    async setShipments(dateRange) {
+      // get modeled data
+      const shipmentsObj = await getModeledData(dateRange.start, dateRange.end);
+
+      // get object with all shipments separated by page numbers and set allShipments props
+      this.allShipments = this.getShipmentsPages(shipmentsObj);
+
+      // set other props values
+      this.shipments = this.allShipments[1] || [];
+      this.page = 1;
+      this.ascOrder = true;
+      this.setNoShipmentProps();
+      this.setSearchProps();
+      console.log(this.lastPage);
+    },
+    nextPage() {
+      this.page += 1;
+
+      const shipmentsPage = this.allShipments[this.page];
+      this.shipments = shipmentsPage || [];
+
+      this.hideNextButton = this.page === this.lastPage ? true : false;
+      this.scrollToTop();
+    },
+    prevPage() {
+      this.page -= 1;
+
+      const shipmentsPage = this.allShipments[this.page];
+      this.shipments = shipmentsPage || [];
+
+      this.hideNextButton = false;
+      this.scrollToTop();
+    },
     sortTable() {
-      console.log('before sort: ' + this.ascOrder);
       if (!this.ascOrder) {
-        this.shipments.sort(
-          (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
-        );
+        this.shipments &&
+          this.shipments.sort(
+            (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
+          );
+
         this.ascOrder = true;
       } else {
-        this.shipments.sort(
-          (a, b) => new Date(a.dropoffTime) - new Date(b.dropoffTime)
-        );
+        this.shipments &&
+          this.shipments.sort(
+            (a, b) => new Date(a.dropoffTime) - new Date(b.dropoffTime)
+          );
+
         this.ascOrder = false;
       }
     },
-    async setShipments(dateRange) {
-      const shipmentsObj = await getModeledData(dateRange.start, dateRange.end);
-
-      this.shipments = Object.values(shipmentsObj).sort(
+    getShipmentsPages(shipmentsObj) {
+      const shipments = Object.values(shipmentsObj).sort(
         (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
       );
 
-      this.ascOrder = true;
+      const allShipmentsPages = this.setShipmentsByPage(shipments);
 
-      this.shipments.length === 0
+      return allShipmentsPages;
+    },
+    setShipmentsByPage(shipmentsArray) {
+      let results = {};
+      let len = shipmentsArray.length;
+      let chunkSize = 50;
+      let page = 1;
+
+      for (let i = 0; i < len; i += chunkSize) {
+        results[page] = shipmentsArray.slice(i, i + chunkSize);
+        page++;
+      }
+
+      this.lastPage = page - 1;
+
+      return results;
+    },
+    setNoShipmentProps() {
+      this.shipments && this.shipments.length === 0
         ? (this.noShipments = true)
         : (this.noShipments = false);
+    },
 
+    setSearchProps() {
       this.search = true;
 
       setTimeout(() => {
         this.search = false;
       }, 1000);
+    },
+    scrollToTop() {
+      window.scrollTo(0, 0);
     },
   },
   head() {
@@ -137,6 +236,31 @@ header::after {
   margin: 0.5rem;
 }
 
+.btns-wrapper {
+  display: flex;
+  align-content: center;
+  justify-content: space-between;
+  margin: 5px 3rem;
+}
+
+.change-flex {
+  justify-content: flex-end;
+}
+
+.btn-prev,
+.btn-next {
+  color: rgb(47, 58, 51);
+  border: none;
+  background-color: white;
+  font-weight: 800;
+  font-family: 'Roboto', sans-serif;
+  letter-spacing: 2px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  height: 2rem;
+}
+
 @media only screen and (max-width: 1024px) {
   .container {
     max-width: 800px;
@@ -169,10 +293,16 @@ header::after {
 
   .header-container {
     flex-direction: column;
+    margin: 1.5rem;
+    margin-bottom: 0.5rem;
   }
 
   .title {
     font-size: 1.5rem;
+  }
+
+  .btns-wrapper {
+    margin: 5px 1rem;
   }
 }
 
@@ -181,13 +311,25 @@ header::after {
     max-width: 380px;
   }
 
+  .header-container {
+    margin: 1rem;
+  }
+
   .title {
     font-size: 1.3rem;
+  }
+
+  .btns-wrapper {
+    margin: 5px 0.5rem;
   }
 }
 @media only screen and (max-width: 410px) {
   .container {
     max-width: 300px;
+  }
+
+  .btns-wrapper {
+    margin: 5px 0rem;
   }
 }
 </style>
