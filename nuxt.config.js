@@ -28,7 +28,10 @@ export default {
   },
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [{ src: `${process.cwd()}/plugins/v-calendar.js`, mode: 'client' }],
+  plugins: [
+    { src: `${process.cwd()}/plugins/v-calendar.js`, mode: 'client' },
+    { src: `${process.cwd()}/plugins/v-mq.js`, mode: 'client' },
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

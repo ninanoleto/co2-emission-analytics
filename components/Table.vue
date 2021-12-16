@@ -40,8 +40,8 @@
       <td>{{ shipment.distanceKm }}</td>
       <td>
         <div class="center-div">
-          <td id="double">{{ shipment.pickupTime.toLocaleDateString() }}</td>
-          <td id="double">
+          <td>{{ shipment.pickupTime.toLocaleDateString() }}</td>
+          <td>
             {{ shipment.pickupTime.toLocaleTimeString().slice(0, 5) }}
           </td>
         </div>
@@ -96,7 +96,7 @@ export default {
 
 <style scoped>
 table {
-  font-family: arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   border-collapse: collapse;
   width: 100%;
 }
@@ -202,5 +202,83 @@ select {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+}
+
+@media only screen and (max-width: 1024px) {
+  table {
+    width: 100%;
+  }
+
+  td,
+  th {
+    padding: 3px;
+    font-size: 0.7rem;
+    height: 2.3rem;
+  }
+
+  th {
+    letter-spacing: 1px;
+    font-weight: 400;
+  }
+
+  .no-td {
+    font-size: 0.7rem;
+  }
+
+  .animation {
+    font-weight: 500;
+  }
+
+  .btn {
+    margin-left: 3px;
+    padding: 2px 3px;
+  }
+
+  select {
+    margin: 3px;
+    padding: 3px;
+    font-size: 0.65rem;
+  }
+
+  .center-div {
+    height: 2.5rem;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  td,
+  th {
+    padding: 3px;
+    font-size: 0.7rem;
+    height: 2.3rem;
+  }
+
+  th {
+    letter-spacing: 1px;
+    font-weight: 400;
+  }
+
+  .no-td {
+    font-size: 0.7rem;
+  }
+
+  .animation {
+    font-weight: 500;
+  }
+
+  .btn {
+    margin-left: 3px;
+    padding: 2px 3px;
+  }
+
+  select {
+    margin: 3px;
+    padding: 3px;
+    font-size: 0.65rem;
+  }
+
+  .center-div {
+    height: 2.5rem;
+  }
 }
 </style>

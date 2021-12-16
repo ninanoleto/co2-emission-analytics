@@ -12,7 +12,7 @@
         color="teal"
         :attributes="attrs"
         :popover="{
-          placement: $screens({ default: 'top', md: 'left-start' }),
+          placement: $screens({ default: 'bottom', md: 'left-start' }),
         }"
       >
         <template v-slot="{ inputValue, inputEvents }">
@@ -114,7 +114,7 @@ input:first-of-type {
 
 .btn {
   display: inline-block;
-  background-color: #333;
+  background-color: rgb(47, 58, 51);
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -132,5 +132,55 @@ input:first-of-type {
   justify-content: center;
 
   flex-direction: column;
+}
+
+@media only screen and (max-width: 1024px) {
+  .form {
+    padding: 0.8rem 2rem;
+  }
+
+  .title {
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .input-container {
+    margin-right: 10px;
+  }
+
+  input {
+    padding: 3px;
+    font-size: 0.7rem;
+  }
+
+  input:first-of-type {
+    margin-bottom: 3px;
+  }
+
+  .btn {
+    padding: 0.3rem 1rem;
+    font-size: 0.7rem;
+
+    height: 1.8rem;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .form {
+    padding: 0.5rem 1rem;
+    margin-top: 10px;
+  }
+
+  .title {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .btn {
+    padding: 0.2rem 0.8rem;
+    font-size: 0.65rem;
+
+    height: 1.8rem;
+  }
 }
 </style>
