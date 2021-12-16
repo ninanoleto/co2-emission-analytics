@@ -17,6 +17,16 @@ export default {
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
 
+  // Google fonts
+  googleFonts: {
+    families: {
+      Roboto: {
+        wght: [100, 300, 400, 500, 700, 900],
+      },
+      Lato: [100, 300],
+    },
+  },
+
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [{ src: `${process.cwd()}/plugins/v-calendar.js`, mode: 'client' }],
 
@@ -24,7 +34,7 @@ export default {
   components: true,
 
   // Modules for dev and build (recommended): https://go.nuxtjs.dev/config-modules
-  buildModules: [],
+  buildModules: ['@nuxtjs/google-fonts'],
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
@@ -42,7 +52,6 @@ export default {
   build: {},
 
   // Middleware
-
   serverMiddleware: [
     { path: 'api', handler: `${process.cwd()}/api/emissionAPI.js` },
   ],
