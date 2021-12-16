@@ -14,7 +14,8 @@ export default {};
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', sans-serif;
+
   font-size: 1rem;
   background: #f4f4f4;
 }

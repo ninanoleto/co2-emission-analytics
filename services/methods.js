@@ -30,6 +30,5 @@ export const getModeledData = async (startDate, endDate) => {
     allModeledData[data.id] = modeledData;
   }
 
-  console.log(allModeledData);
   return allModeledData;
 };

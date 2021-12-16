@@ -1,15 +1,20 @@
 <template>
   <div class="container">
-    <div class="flex">
-      <header class="header">
+    <div class="header-container">
+      <header>
         <h1 class="title">CO&sup2; Emission Analytics</h1>
       </header>
-      <div class="datepicker">
+      <client-only>
         <DatePicker v-on:set-shipments="setShipments" />
-      </div>
+      </client-only>
     </div>
     <client-only>
-      <Table :shipments="shipments" />
+      <Table
+        :shipments="shipments"
+        :noShipments="noShipments"
+        :search="search"
+        @sort-data="sortTable"
+      />
     </client-only>
   </div>
 </template>
@@ -28,27 +33,44 @@ export default {
     return {
       shipments: [],
       ascOrder: true,
+      noShipments: false,
+      search: false,
     };
   },
   methods: {
-    async sortTable() {
-      if (ascOrder) {
-        this.shipments.sort((a, b) =>
-          a.dropoffTime.getTime() > b.dropoffTime.getTime() ? 1 : -1
+    // Adjust Sort
+    sortTable() {
+      console.log('before sort: ' + this.ascOrder);
+      if (!this.ascOrder) {
+        this.shipments.sort(
+          (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
         );
+        this.ascOrder = true;
       } else {
-        this.shipments.sort((a, b) =>
-          a.dropoffTime.getTime() > b.dropoffTime.getTime() ? -1 : 1
+        this.shipments.sort(
+          (a, b) => new Date(a.dropoffTime) - new Date(b.dropoffTime)
         );
+        this.ascOrder = false;
       }
     },
     async setShipments(dateRange) {
-      const shipments = await getModeledData(dateRange.start, dateRange.end);
+      const shipmentsObj = await getModeledData(dateRange.start, dateRange.end);
 
-      console.log(shipments);
-      this.shipments = Object.values(shipments).sort((a, b) =>
-        a.dropoffTime.getTime() > b.dropoffTime.getTime() ? 1 : -1
+      this.shipments = Object.values(shipmentsObj).sort(
+        (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
       );
+
+      this.ascOrder = true;
+
+      this.shipments.length === 0
+        ? (this.noShipments = true)
+        : (this.noShipments = false);
+
+      this.search = true;
+
+      setTimeout(() => {
+        this.search = false;
+      }, 1000);
     },
   },
   head() {
@@ -64,6 +86,10 @@ export default {
       ],
     };
   },
+
+  created() {
+    console.log(this.ascOrder);
+  },
 };
 </script>
 
@@ -72,47 +98,35 @@ export default {
   max-width: 1000px;
   margin: 2rem auto;
   overflow: hidden;
-  padding: 2rem 2rem 4rem;
+  padding: 1rem 2rem 4rem;
   border-radius: 5px;
   background: #fff;
 }
 
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
+.header-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  margin: 2rem;
 }
 
-.flex {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+header {
+  text-align: center;
 }
-.header {
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px dotted #ccc;
-  padding: 0 1rem;
+
+header::after {
+  display: inline-block;
+  content: '';
+  border-bottom: 0.15rem solid rgb(91, 152, 113);
+  width: 70%;
 }
 
 .title {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
 
-  color: #526488;
+  color: rgb(47, 58, 51);
   font-weight: 300;
-  margin: 1rem;
-}
-
-.btn {
-  display: inline-block;
-  background-color: #333;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  padding: 0.5rem 1.2rem;
-  margin-right: 0.5rem;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  cursor: pointer;
+  margin: 0.5rem;
 }
 </style>
