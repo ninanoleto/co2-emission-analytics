@@ -44,8 +44,8 @@ export default {
   data() {
     return {
       range: {
-        start: Date,
-        end: Date,
+        start: undefined,
+        end: undefined,
       },
       masks: {
         input: 'YYYY-MM-DD h:mm ',

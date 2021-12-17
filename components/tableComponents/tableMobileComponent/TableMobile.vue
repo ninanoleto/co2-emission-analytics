@@ -2,7 +2,7 @@
   <div>
     <div class="btn-wrapper">
       <button
-        v-if="shipments.length > 0"
+        v-if="shipments && shipments.length > 0"
         @click="$emit('sort-data')"
         class="btn"
       >
@@ -11,7 +11,7 @@
     </div>
     <div class="table-wrapper">
       <EmptyTableMobile
-        v-if="shipments.length === 0"
+        v-if="shipments && shipments.length === 0"
         :noShipments="noShipments"
       />
       <FullTableMobile

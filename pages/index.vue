@@ -11,8 +11,7 @@
     <Buttons
       :page="page"
       :lastPage="lastPage"
-      :hideNextButton="hideNextButton"
-      :shipmentsLength="shipments.length"
+      :shipmentsLength="shipments && shipments.length"
       v-on:prev-page="prevPage"
       v-on:next-page="nextPage"
     />
@@ -22,6 +21,7 @@
           :shipments="shipments"
           :noShipments="noShipments"
           :search="search"
+          @get-shipments="sortByCalcType"
           @sort-data="sortTable"
         />
       </mq-layout>
@@ -37,8 +37,7 @@
     <Buttons
       :page="page"
       :lastPage="lastPage"
-      :hideNextButton="hideNextButton"
-      :shipmentsLength="shipments.length"
+      :shipmentsLength="shipments && shipments.length"
       v-on:prev-page="prevPage"
       v-on:next-page="nextPage"
     />
@@ -71,28 +70,33 @@ export default {
       search: false,
       page: 1,
       lastPage: 1,
-      hideNextButton: false,
+      calcType: 'default',
     };
   },
 
   methods: {
+    // sort shipments by calculation type
+    sortByCalcType(calc = 'default') {
+      this.calcType = calc;
+      this.setSortedShipmentsByType(this.calcType);
+    },
+
+    // sort shipments by sort button
+    sortTable() {
+      this.sortByCalcType();
+      this.toggleOrder();
+    },
+
+    // set props onSubmit
     async setShipments(dateRange) {
-      // get modeled data and save to props
+      // get modeled data object and save to props
       this.shipmentsModeledData = await getModeledData(
         dateRange.start,
         dateRange.end
       );
 
-      // get array with all ordered shipments from the modeled data
-      const sortedShipmentsArray = sortAllShipments(
-        this.shipmentsModeledData,
-        'asc'
-      );
-      // get shipments separated by page numbers and set allShipments props
-      this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
-
-      // set shipments props that will be used in the page
-      this.shipments = this.allShipmentsPages[1] || [];
+      // short shipments props by type of calculation
+      this.sortByCalcType(this.calcType);
 
       // set other props values
       this.page = 1;
@@ -101,51 +105,29 @@ export default {
       this.setSearchProps();
     },
 
-    // sort all shipments pages based on the shipments modeled data and ascOrder props
-    sortTable() {
-      if (this.ascOrder) {
-        // get array with all ordered shipments from the modeled data
-        const sortedShipmentsArray = sortAllShipments(
-          this.shipmentsModeledData,
-          'desc'
-        );
+    setSortedShipmentsByType(calcType) {
+      const sortOrder = this.ascOrder ? 'asc' : 'desc';
 
-        // get shipments separated by page numbers and set allShipments props
-        this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
-        // set shipments props that will be used in the page
-        this.shipments = this.allShipmentsPages[this.page] || [];
-        this.ascOrder = false;
-      } else {
-        const sortedShipmentsArray = sortAllShipments(
-          this.shipmentsModeledData,
-          'asc'
-        );
+      // sorts data object by drop off time
+      // filter sorted array by calculation type
+      const sortedShipmentsOfType = sortAllShipments(
+        this.shipmentsModeledData,
+        sortOrder
+      ).filter((shipment) =>
+        calcType === 'all types'
+          ? shipment
+          : shipment && calcType in shipment.co2Emission
+      );
 
-        this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
-        this.shipments = this.allShipmentsPages[this.page] || [];
-        this.ascOrder = true;
-      }
+      // sets shipment pagination object to pagination props
+      this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsOfType);
+
+      // update other props
+      this.page = this.page > this.lastPage ? this.lastPage : this.page || 1;
+      this.calcType = calcType;
+      this.shipments = this.allShipmentsPages[this.page] || [];
     },
 
-    nextPage() {
-      this.page = this.page + 1;
-
-      const shipmentsPage = this.allShipmentsPages[this.page];
-      this.shipments = shipmentsPage || [];
-
-      this.hideNextButton = this.page === this.lastPage ? true : false;
-      this.scrollToTop();
-    },
-
-    prevPage() {
-      this.page = this.page - 1;
-
-      const shipmentsPage = this.allShipmentsPages[this.page];
-      this.shipments = shipmentsPage || [];
-
-      this.hideNextButton = false;
-      this.scrollToTop();
-    },
     // Separates shipments in pages to be displayed in chunks of 25 items per page
     // starting by page 1
     setShipmentsByPage(shipmentsArray) {
@@ -162,6 +144,28 @@ export default {
       this.lastPage = page - 1;
 
       return results;
+    },
+
+    nextPage() {
+      this.page = this.page + 1;
+
+      const shipmentsPage = this.allShipmentsPages[this.page];
+      this.shipments = shipmentsPage || [];
+
+      this.scrollToTop();
+    },
+
+    prevPage() {
+      this.page = this.page - 1;
+
+      const shipmentsPage = this.allShipmentsPages[this.page];
+      this.shipments = shipmentsPage || [];
+
+      this.scrollToTop();
+    },
+
+    toggleOrder() {
+      this.ascOrder = !this.ascOrder;
     },
 
     setNoShipmentProps() {

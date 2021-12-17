@@ -8,8 +8,13 @@
 export const getModeledData = async (startDate, endDate) => {
   const API_URL = 'http://localhost:3000';
 
+  console.log(typeof startDate, typeof endDate);
+  const dateStart = (startDate ?? new Date()).toUTCString();
+
+  const dateEnd = (endDate ?? new Date()).toUTCString();
+
   const dbData = await fetch(
-    `${API_URL}/api/emissions?start=${startDate.toUTCString()}&end=${endDate.toUTCString()}`
+    `${API_URL}/api/emissions?start=${dateStart}&end=${dateEnd}`
   ).then((res) => res.json());
 
   const allModeledData = {};
