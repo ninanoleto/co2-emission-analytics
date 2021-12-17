@@ -1,7 +1,7 @@
 <template>
   <form class="form" @submit.prevent>
     <div>
-      <span class="title">Select date range</span>
+      <span class="title">Select Drop Off Time</span>
       <v-date-picker
         v-model="range"
         mode="dateTime"

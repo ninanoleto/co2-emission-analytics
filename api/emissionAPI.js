@@ -7,9 +7,9 @@ app.get('/emissions', async (req, res) => {
   const { start, end } = req.query;
 
   const client = new Client({
-    host: process.env.HOST ?? 'localhost',
+    host: process.env.PGHOST ?? 'localhost',
     user: 'test',
-    port: process.env.PORT ?? 5432,
+    port: process.env.PGPORT ?? 5432,
     password: 'TestUser',
     database: 'homeworks',
   });

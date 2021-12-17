@@ -18,15 +18,15 @@
         </select>
       </th>
     </tr>
-    <tr v-if="shipments.length === 0 && noShipments" class="all-td">
+    <tr v-if="shipments.length === 0 && noShipments">
       <td :class="[search && 'animation', 'no-td']" colspan="6">
         No shipments in the date range selected
       </td>
     </tr>
-    <tr v-else-if="shipments.length === 0" class="all-td">
+    <tr v-else-if="shipments.length === 0">
       <td colspan="6"></td>
     </tr>
-    <tr
+    <FullTable
       v-else
       v-for="shipment in shipments.filter((shipment) =>
         calculation === 'all types'
@@ -34,56 +34,24 @@
           : shipment.co2Emission[calculation]
       )"
       :key="shipment.id"
-    >
-      <td>{{ shipment.id }}</td>
-      <td>{{ shipment.weightKg }}</td>
-      <td>{{ shipment.distanceKm }}</td>
-      <td>
-        <div class="center-div">
-          <td>{{ shipment.pickupTime.toLocaleDateString() }}</td>
-          <td>
-            {{ shipment.pickupTime.toLocaleTimeString().slice(0, 5) }}
-          </td>
-        </div>
-      </td>
-      <td>
-        <div class="center-div">
-          <td>{{ shipment.dropoffTime.toLocaleDateString() }}</td>
-          <td>
-            {{ shipment.dropoffTime.toLocaleTimeString().slice(0, 5) }}
-          </td>
-        </div>
-      </td>
-      <td>
-        <div v-if="calculation === 'all types'">
-          <div
-            id="separate"
-            v-for="(value, name) in shipment.co2Emission"
-            :key="calculation + value"
-          >
-            <td id="center">
-              <strong>{{ name }}</strong>
-            </td>
-            <td id="center">{{ value }}</td>
-          </div>
-        </div>
-        <div v-else>
-          <div>
-            <td id="center">{{ shipment.co2Emission[calculation] }}</td>
-          </div>
-        </div>
-      </td>
-    </tr>
+      :shipment="shipment"
+      :calculation="calculation"
+    />
   </table>
 </template>
 
 <script>
+import FullTable from './FullTable.vue';
+
 export default {
   name: 'Table',
   props: {
     shipments: Array,
     noShipments: Boolean,
     search: Boolean,
+  },
+  components: {
+    FullTable,
   },
   data() {
     return {
@@ -105,7 +73,6 @@ td,
 th {
   padding: 5px;
   text-align: center;
-  font-size: 0.8rem;
   height: 2.5rem;
 }
 
@@ -152,7 +119,7 @@ tr:last-of-type td:last-of-type {
     transform: scale(1);
   }
 
-  50% {
+  70% {
     transform: scale(0.95);
   }
 
@@ -179,31 +146,6 @@ select {
   padding: 5px;
   font-size: 0.7rem;
 }
-
-.center-div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-
-  height: 2.8rem;
-}
-
-#separate {
-  border: 1px dashed rgb(107, 133, 116);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
 @media only screen and (max-width: 1024px) {
   table {
     width: 100%;
@@ -239,10 +181,6 @@ select {
     padding: 3px;
     font-size: 0.65rem;
   }
-
-  .center-div {
-    height: 2.5rem;
-  }
 }
 
 @media only screen and (max-width: 768px) {
@@ -275,10 +213,6 @@ select {
     margin: 3px;
     padding: 3px;
     font-size: 0.65rem;
-  }
-
-  .center-div {
-    height: 2.5rem;
   }
 }
 </style>

@@ -8,25 +8,14 @@
         <DatePicker v-on:set-shipments="setShipments" />
       </client-only>
     </div>
-    <div :class="[page === 1 && 'change-flex', 'btns-wrapper']">
-      <button
-        class="btn-prev"
-        :hidden="(page === 1 && 'null') || shipments.length === 0"
-        @click="prevPage"
-      >
-        &#8592; Prev
-      </button>
-      <button
-        class="btn-next"
-        :hidden="
-          ((hideNextButton || lastPage === 1) && 'null') ||
-          shipments.length === 0
-        "
-        @click="nextPage"
-      >
-        Next &#8594;
-      </button>
-    </div>
+    <Buttons
+      :page="page"
+      :lastPage="lastPage"
+      :hideNextButton="hideNextButton"
+      :shipmentsLength="shipments.length"
+      v-on:prev-page="prevPage"
+      v-on:next-page="nextPage"
+    />
     <client-only>
       <mq-layout mq="mmd+">
         <Table
@@ -45,116 +34,124 @@
         />
       </mq-layout>
     </client-only>
-    <div :class="[page === 1 && 'change-flex', 'btns-wrapper']">
-      <button
-        class="btn-prev"
-        :hidden="(page === 1 && 'null') || shipments.length === 0"
-        @click="prevPage"
-      >
-        &#8592; Prev
-      </button>
-      <button
-        class="btn-next"
-        :hidden="
-          ((hideNextButton || lastPage === 1) && 'null') ||
-          shipments.length === 0
-        "
-        @click="nextPage"
-      >
-        Next &#8594;
-      </button>
-    </div>
+    <Buttons
+      :page="page"
+      :lastPage="lastPage"
+      :hideNextButton="hideNextButton"
+      :shipmentsLength="shipments.length"
+      v-on:prev-page="prevPage"
+      v-on:next-page="nextPage"
+    />
   </div>
 </template>
 
 <script>
 import DatePicker from '../components/DatePicker.vue';
-import Table from '../components/Table.vue';
-import TableMobile from '../components/TableMobile.vue';
+import Buttons from '../components/Buttons.vue';
+import Table from '../components/tableComponents/tableComponent/Table.vue';
+import TableMobile from '../components/tableComponents/tableMobileComponent/TableMobile.vue';
 import { getModeledData } from '../services/modelData';
+import { sortAllShipments } from '../services/sortData';
 
 export default {
   components: {
     DatePicker,
+    Buttons,
     Table,
     TableMobile,
   },
+
   data() {
     return {
-      allShipments: {},
+      shipmentsModeledData: {},
+      allShipmentsPages: {},
       shipments: [],
-      ascOrder: true,
+      ascOrder: false,
       noShipments: false,
       search: false,
-      page: Number,
-      lastPage: Number,
+      page: 1,
+      lastPage: 1,
       hideNextButton: false,
     };
   },
+
   methods: {
     async setShipments(dateRange) {
-      // get modeled data
-      const shipmentsObj = await getModeledData(dateRange.start, dateRange.end);
+      // get modeled data and save to props
+      this.shipmentsModeledData = await getModeledData(
+        dateRange.start,
+        dateRange.end
+      );
 
-      // get object with all shipments separated by page numbers and set allShipments props
-      this.allShipments = this.getShipmentsPages(shipmentsObj);
+      // get array with all ordered shipments from the modeled data
+      const sortedShipmentsArray = sortAllShipments(
+        this.shipmentsModeledData,
+        'asc'
+      );
+      // get shipments separated by page numbers and set allShipments props
+      this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
+
+      // set shipments props that will be used in the page
+      this.shipments = this.allShipmentsPages[1] || [];
 
       // set other props values
-      this.shipments = this.allShipments[1] || [];
       this.page = 1;
       this.ascOrder = true;
       this.setNoShipmentProps();
       this.setSearchProps();
-      console.log(this.lastPage);
     },
-    nextPage() {
-      this.page += 1;
 
-      const shipmentsPage = this.allShipments[this.page];
+    // sort all shipments pages based on the shipments modeled data and ascOrder props
+    sortTable() {
+      if (this.ascOrder) {
+        // get array with all ordered shipments from the modeled data
+        const sortedShipmentsArray = sortAllShipments(
+          this.shipmentsModeledData,
+          'desc'
+        );
+
+        // get shipments separated by page numbers and set allShipments props
+        this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
+        // set shipments props that will be used in the page
+        this.shipments = this.allShipmentsPages[this.page] || [];
+        this.ascOrder = false;
+      } else {
+        const sortedShipmentsArray = sortAllShipments(
+          this.shipmentsModeledData,
+          'asc'
+        );
+
+        this.allShipmentsPages = this.setShipmentsByPage(sortedShipmentsArray);
+        this.shipments = this.allShipmentsPages[this.page] || [];
+        this.ascOrder = true;
+      }
+    },
+
+    nextPage() {
+      this.page = this.page + 1;
+
+      const shipmentsPage = this.allShipmentsPages[this.page];
       this.shipments = shipmentsPage || [];
 
       this.hideNextButton = this.page === this.lastPage ? true : false;
       this.scrollToTop();
     },
-    prevPage() {
-      this.page -= 1;
 
-      const shipmentsPage = this.allShipments[this.page];
+    prevPage() {
+      this.page = this.page - 1;
+
+      const shipmentsPage = this.allShipmentsPages[this.page];
       this.shipments = shipmentsPage || [];
 
       this.hideNextButton = false;
       this.scrollToTop();
     },
-    sortTable() {
-      if (!this.ascOrder) {
-        this.shipments &&
-          this.shipments.sort(
-            (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
-          );
-
-        this.ascOrder = true;
-      } else {
-        this.shipments &&
-          this.shipments.sort(
-            (a, b) => new Date(a.dropoffTime) - new Date(b.dropoffTime)
-          );
-
-        this.ascOrder = false;
-      }
-    },
-    getShipmentsPages(shipmentsObj) {
-      const shipments = Object.values(shipmentsObj).sort(
-        (a, b) => new Date(b.dropoffTime) - new Date(a.dropoffTime)
-      );
-
-      const allShipmentsPages = this.setShipmentsByPage(shipments);
-
-      return allShipmentsPages;
-    },
+    // Separates shipments in pages to be displayed in chunks of 25 items per page
+    // starting by page 1
     setShipmentsByPage(shipmentsArray) {
       let results = {};
       let len = shipmentsArray.length;
-      let chunkSize = 50;
+      let chunkSize = 25;
       let page = 1;
 
       for (let i = 0; i < len; i += chunkSize) {
@@ -166,6 +163,7 @@ export default {
 
       return results;
     },
+
     setNoShipmentProps() {
       this.shipments && this.shipments.length === 0
         ? (this.noShipments = true)
@@ -179,10 +177,12 @@ export default {
         this.search = false;
       }, 1000);
     },
+
     scrollToTop() {
       window.scrollTo(0, 0);
     },
   },
+
   head() {
     return {
       title: 'CO² Emission Analytics',
@@ -236,31 +236,6 @@ header::after {
   margin: 0.5rem;
 }
 
-.btns-wrapper {
-  display: flex;
-  align-content: center;
-  justify-content: space-between;
-  margin: 5px 3rem;
-}
-
-.change-flex {
-  justify-content: flex-end;
-}
-
-.btn-prev,
-.btn-next {
-  color: rgb(47, 58, 51);
-  border: none;
-  background-color: white;
-  font-weight: 800;
-  font-family: 'Roboto', sans-serif;
-  letter-spacing: 2px;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  cursor: pointer;
-  height: 2rem;
-}
-
 @media only screen and (max-width: 1024px) {
   .container {
     max-width: 800px;
@@ -300,10 +275,6 @@ header::after {
   .title {
     font-size: 1.5rem;
   }
-
-  .btns-wrapper {
-    margin: 5px 1rem;
-  }
 }
 
 @media only screen and (max-width: 480px) {
@@ -318,18 +289,11 @@ header::after {
   .title {
     font-size: 1.3rem;
   }
-
-  .btns-wrapper {
-    margin: 5px 0.5rem;
-  }
 }
+
 @media only screen and (max-width: 410px) {
   .container {
     max-width: 300px;
-  }
-
-  .btns-wrapper {
-    margin: 5px 0rem;
   }
 }
 </style>
