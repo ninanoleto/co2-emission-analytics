@@ -1,68 +1,31 @@
-# co2-emission-analytics
+# CO² Emission Analytics
 
-## Build Setup
+## About
+
+Web app for data visualization of CO² emission analytics. It presents a calendar picker for start and end period date, and displays a table with the modeled data.
+
+## Tech Stack
+
+Application with responsive UI built with JavaScript, Vue 3, Nuxt.js using an Express.js middleware. PostgesSQL was the dabase used.
+
+## Running the project locally
+
+### Setting up Postgres
+
+1. Make sure Postgres is running
+2. Create database `homeworks`
+3. Create user `test` with password `TestUser`
+4. Grant all privilegies to `test` on database `homeworks`
+5. Default postgres host and port are: `localhost:5432` - custom values can be used with env vars `PGHOST` and `PGPORT`
+6. Make sure to create the `co2_emission_analytics` schema and load the data from `co2_emission_analytics.shipments.dmp` and `co2_emission_analytics.shipment_co2_emissions.dmp`(not included in the repo)
+
+## Running the App
 
 ```bash
 # install dependencies
 $ npm install
-
-# serve with hot reload at localhost:3000
+# run project
 $ npm run dev
-
-# build for production and launch server
-$ npm run build
-$ npm run start
-
-# generate static project
-$ npm run generate
 ```
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
-
-## Special Directories
-
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
-
-### `assets`
-
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+App will be running on port `3000`

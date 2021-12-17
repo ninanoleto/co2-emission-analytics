@@ -3,10 +3,13 @@
  * that contains all the types of calculations of CO2
  * @param {Date} startDate
  * @param {Date} endDate
+ * @returns {Object}
  */
 export const getModeledData = async (startDate, endDate) => {
+  const API_URL = 'http://localhost:3000';
+
   const dbData = await fetch(
-    `http://localhost:3000/api/emissions?start=${startDate.toUTCString()}&end=${endDate.toUTCString()}`
+    `${API_URL}/api/emissions?start=${startDate.toUTCString()}&end=${endDate.toUTCString()}`
   ).then((res) => res.json());
 
   const allModeledData = {};
