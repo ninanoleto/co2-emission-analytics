@@ -7,32 +7,37 @@
       <th>Pickup Time</th>
       <th>
         Drop Off Time
-        <button @click="$emit('sort-data')" class="btn">&#8597;</button>
+        <button
+          @click="$emit('sort-data', calculation)"
+          class="btn"
+          :disabled="shipments && shipments.length === 0"
+        >
+          &#8597;
+        </button>
       </th>
       <th>
         CO&sup2;
-        <select v-model="calculation">
+        <select
+          v-model="calculation"
+          @change="$emit('get-shipments', calculation)"
+        >
           <option v-for="type in types" :value="type" :key="type">
             {{ type }}
           </option>
         </select>
       </th>
     </tr>
-    <tr v-if="shipments.length === 0 && noShipments">
+    <tr v-if="shipments && shipments.length === 0 && noShipments">
       <td :class="[search && 'animation', 'no-td']" colspan="6">
         No shipments in the date range selected
       </td>
     </tr>
-    <tr v-else-if="shipments.length === 0">
+    <tr v-else-if="shipments && shipments.length === 0">
       <td colspan="6"></td>
     </tr>
     <FullTable
       v-else
-      v-for="shipment in shipments.filter((shipment) =>
-        calculation === 'all types'
-          ? shipment
-          : shipment.co2Emission[calculation]
-      )"
+      v-for="shipment in shipments"
       :key="shipment.id"
       :shipment="shipment"
       :calculation="calculation"
@@ -49,6 +54,7 @@ export default {
     shipments: Array,
     noShipments: Boolean,
     search: Boolean,
+    calcType: String,
   },
   components: {
     FullTable,
@@ -135,6 +141,11 @@ tr:last-of-type td:last-of-type {
   padding: 3px 5px;
   border-radius: 2px;
   cursor: pointer;
+}
+
+.btn:disabled {
+  background-color: #c0c4c1;
+  cursor: auto;
 }
 
 select {
