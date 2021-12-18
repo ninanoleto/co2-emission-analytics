@@ -82,9 +82,9 @@ export default {
     },
 
     // sort shipments by sort button
-    sortTable() {
-      this.sortByCalcType();
+    sortTable(calc) {
       this.toggleOrder();
+      this.sortByCalcType(calc);
     },
 
     // set props onSubmit
@@ -96,11 +96,11 @@ export default {
       );
 
       // short shipments props by type of calculation
+      this.ascOrder = true;
       this.sortByCalcType(this.calcType);
 
       // set other props values
       this.page = 1;
-      this.ascOrder = true;
       this.setNoShipmentProps();
       this.setSearchProps();
     },
